@@ -8,11 +8,22 @@
     <packaging>jar</packaging>
 
     <name>com.ambimmort.dmc.server</name>
-    <url>http://maven.apache.org</url>
+    <url>http://www.ambimmort.com</url>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+
+    <distributionManagement>
+        <snapshotRepository>
+            <id>nexus-snapshots</id>
+            <url>http://amavenrepo:8081/nexus/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>nexus-releases</id>
+            <url>http://amavenrepo:8081/nexus/content/repositories/releases</url>
+        </repository>
+    </distributionManagement>
 
     <dependencies>
         <dependency>
@@ -28,6 +39,24 @@
             <classifier>jdk15</classifier>
         </dependency>
         <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-http</artifactId>
+            <version>8.1.10.v20130312</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-servlets</artifactId>
+            <version>8.1.10.v20130312</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-servlet</artifactId>
+            <version>8.1.10.v20130312</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
             <groupId>javax</groupId>
             <artifactId>javaee-api</artifactId>
             <version>6.0</version>
@@ -39,18 +68,7 @@
             <version>2.5</version>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-server</artifactId>
-            <version>7.6.10.v20130312</version>
-            <classifier>config</classifier>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-servlet</artifactId>
-            <version>7.6.10.v20130312</version>
-            <type>jar</type>
-        </dependency>
+      
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>

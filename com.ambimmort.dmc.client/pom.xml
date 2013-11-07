@@ -8,11 +8,22 @@
     <packaging>jar</packaging>
 
     <name>com.ambimmort.dmc.client</name>
-    <url>http://maven.apache.org</url>
+    <url>http://www.ambimmort.com</url>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+    
+    <distributionManagement>
+        <snapshotRepository>
+            <id>nexus-snapshots</id>
+            <url>http://amavenrepo:8081/nexus/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>nexus-releases</id>
+            <url>http://amavenrepo:8081/nexus/content/repositories/releases</url>
+        </repository>
+    </distributionManagement>
 
     <dependencies>
         <dependency>

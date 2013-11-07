@@ -1,6 +1,7 @@
 package com.ambimmort.dmc.server.core;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -10,20 +11,13 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-
 public class DMCService extends HttpServlet {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = 1L;
-    org.apache.log4j.Logger logger = org.apache.log4j.Logger
-            .getLogger(DMCService.class);
 
     /**
-     * Processes requests for both HTTP
-     * <code>GET</code> and
-     * <code>POST</code> methods.
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
+     * methods.
      *
      * @param request servlet request
      * @param response servlet response
@@ -32,12 +26,18 @@ public class DMCService extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request,
             HttpServletResponse response) throws ServletException, IOException {
+        DomainManager dm = (DomainManager) request.getServletContext().getAttribute("domainManager");
+        String rand = request.getParameter("rand");
+        if (rand == null) {
+            return;
+        }
         try {
             request.setCharacterEncoding("utf-8");
             response.setContentType("text/html;charset=UTF-8");
             response.setCharacterEncoding("utf-8");
             String name = request.getParameter("name");
             String methodName = request.getParameter("methodName");
+
             BufferedReader br = new BufferedReader(new InputStreamReader(
                     request.getInputStream()), 1024);
             String tmp = null;
@@ -51,7 +51,12 @@ public class DMCService extends HttpServlet {
             out.print(rst);
             out.close();
         } catch (Throwable t) {
-//            t.printStackTrace();
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            PrintWriter pw = new PrintWriter(baos);
+            t.printStackTrace(pw);
+            pw.close();
+            response.getWriter().println("TTT_DDD_EXCEPTION_$_$_$_$_SSDSSX_" + dm.getDomain() + "_" + rand+"_["+baos.toString("utf-8")+"]");
+            response.getWriter().close();
         }
     }
 

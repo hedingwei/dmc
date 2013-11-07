@@ -11,8 +11,6 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import net.sf.json.JSONArray;
@@ -30,32 +28,30 @@ public class DMCInterpretor {
 
     public String doDMCClassService(String className) {
 
-        {
-            try {
-                Class cl = Class.forName(className);
-                if (cl == null) {
-                    return null;
-                }
-                JSONObject obj = new JSONObject();
-                obj.put("className", cl.getName());
-                JSONObject methods = new JSONObject();
-                for (Method m : cl.getMethods()) {
-                    JSONObject mo = new JSONObject();
-                    mo.put("returnType", m.getReturnType().getName());
-                    JSONArray ja = new JSONArray();
-                    for (Class pc : m.getParameterTypes()) {
-                        ja.add(pc.getName());
-                    }
-                    mo.put("parameterType", ja);
-                    methods.put(m.getName(), mo);
-                }
-                obj.put("methods", methods);
-
-                return obj.toString();
-            } catch (Exception ex) {
-                ex.printStackTrace();
+        try {
+            Class cl = Class.forName(className);
+            if (cl == null) {
+                return null;
             }
+            JSONObject obj = new JSONObject();
+            obj.put("className", cl.getName());
+            JSONObject methods = new JSONObject();
+            for (Method m : cl.getMethods()) {
+                JSONObject mo = new JSONObject();
+                mo.put("returnType", m.getReturnType().getName());
+                JSONArray ja = new JSONArray();
+                for (Class pc : m.getParameterTypes()) {
+                    ja.add(pc.getName());
+                }
+                mo.put("parameterType", ja);
+                methods.put(m.getName(), mo);
+            }
+            obj.put("methods", methods);
+            return obj.toString();
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
+
         return null;
     }
 
@@ -81,7 +77,7 @@ public class DMCInterpretor {
         return classNames;
     }
 
-    public Object doDMCService(String name, String methodName, String content, HttpSession session) {
+    public Object doDMCService(String name, String methodName, String content, HttpSession session) throws Throwable {
         if (content == null) {
             return null;
         }
@@ -89,18 +85,16 @@ public class DMCInterpretor {
         JSONObject obj = null;
         try {
             obj = JSONObject.fromObject(content);
-        } catch (Exception e) {
-            return null;
+        } catch (Throwable e) {
+            throw e;
         }
         String v = new String(Base64.decodeBase64(obj.getString("values")));
         try {
 
             Class cl = Class.forName(name);
             if (cl == null) {
-                System.out.println("Could not find class " + cl);
                 return null;
             }
-            Class iHttpSessionAware = Class.forName(IHttpSessionAware.class.getName());
             JSONArray array = obj.getJSONArray("parameterType");
             JSONArray objs = JSONArray.fromObject(v);
             Class[] pcs = new Class[array.size()];
@@ -112,40 +106,23 @@ public class DMCInterpretor {
                 values[i] = objs.get(i);
             }
 
-            {
-                try {
-                    Object to = cl.newInstance();
-                    boolean flag = false;
-                    for (Class cls : cl.getInterfaces()) {
-                        if ("com.ambimmort.nisp.commons.felix.dmc.exports.IHttpSessionAware".equals(cls.getName())) {
-                            flag = true;
-                            break;
-                        }
-                    }
-                    if (flag) {
-                        Method m = iHttpSessionAware.getDeclaredMethod("bind", HttpSession.class);
-                        m.invoke(to, session);
-                    }
-                    Method m = to.getClass().getDeclaredMethod(methodName, pcs);
-                    m.setAccessible(true);
-                    Object rt = m.invoke(to, values);
-                    return rt;
-                } catch (Exception er) {
-                    er.printStackTrace();
-                } finally {
+            try {
+                Object to = cl.newInstance();
+                Method m = to.getClass().getDeclaredMethod(methodName, pcs);
+                m.setAccessible(true);
+                Object rt = m.invoke(to, values);
+                return rt;
+            } catch (Throwable er) {
+                throw er;
+            } finally {
 //                    Thread.currentThread().setContextClassLoader(oriclassload);
-                }
-
             }
 
         } catch (SecurityException ex) {
-            Logger.getLogger(DMCService.class.getName()).log(Level.SEVERE,
-                    null, ex);
+            throw ex;
         } catch (ClassNotFoundException ex) {
-            Logger.getLogger(DMCService.class.getName()).log(Level.SEVERE,
-                    null, ex);
+            throw ex;
         }
-        return null;
     }
 
     public static DMCInterpretor getInstance() {
