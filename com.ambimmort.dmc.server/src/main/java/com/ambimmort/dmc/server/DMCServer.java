@@ -23,6 +23,10 @@ public final class DMCServer {
         return port;
     }
 
+    public DMCServer(int port) {
+        this("default_" + port, port);
+    }
+
     public DMCServer(String domain, int port) {
         this.port = port;
         server = new Server(port);
